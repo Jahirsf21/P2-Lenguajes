@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module logicadenegocios.Estructuras where
+module Logicadenegocios.Estructuras where
 
 import GHC.Generics (Generic)
 import Data.Aeson (FromJSON)

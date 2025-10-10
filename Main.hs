@@ -1,6 +1,6 @@
 module Main where
 
-import logicadenegocios.ImportacionDatos (menuImportarDatos)
+import Logicadenegocios.ImportacionDatos (menuImportarDatos)
 
 main :: IO ()
 main = do

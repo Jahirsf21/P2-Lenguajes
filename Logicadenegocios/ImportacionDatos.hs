@@ -1,5 +1,5 @@
-module logicadenegocios.ImportacionDatos (menuImportarDatos) where
-import logicadenegocios.Estructuras
+module Logicadenegocios.ImportacionDatos (menuImportarDatos) where
+import Logicadenegocios.Estructuras
 
 
 import qualified Data.ByteString.Lazy.Char8 as B

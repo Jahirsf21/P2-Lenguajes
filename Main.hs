@@ -14,7 +14,6 @@ main = do
     opcion <- getLine
     case opcion of
         "1" -> do
-            putStrLn "Importando datos..."
             menuImportarDatos
             main
         "2" -> do

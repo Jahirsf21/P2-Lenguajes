@@ -51,7 +51,7 @@ imprimirErroresVenta (venta, errores) = do
 
 -- Función para mostrar el menú de la importación de datos
 -- Solicita la ruta del archivo de ventas .json
-menuImportarDatos :: IO ()
+menuImportarDatos :: IO Ventas
 menuImportarDatos = do
   putStrLn "Ingrese el nombre del archivo JSON de ventas:"
   archivo <- getLine
@@ -63,7 +63,7 @@ menuImportarDatos = do
       let (ventasValidas, ventasInvalidas) = separarVentas nuevasVentas
       let ventasActualizadas = Ventas ventasValidas
 
-      putStrLn $ "\nVentas válidas importadas: " ++ show ventasActualizadas
+      putStrLn $ "\nVentas válidas importadas: " ++ show (length ventasValidas) ++ " registros"
 
       if null ventasInvalidas
         then putStrLn "\nTodas las líneas fueron válidas."
@@ -71,4 +71,8 @@ menuImportarDatos = do
           putStrLn "\nLas siguientes líneas fueron excluidas por errores:"
           mapM_ imprimirErroresVenta ventasInvalidas
 
-    Nothing -> putStrLn "Error al parsear el archivo de ventas."
+      return ventasActualizadas
+
+    Nothing -> do
+      putStrLn "Error al parsear el archivo de ventas."
+      return (Ventas [])

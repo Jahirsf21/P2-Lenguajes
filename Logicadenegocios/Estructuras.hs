@@ -23,7 +23,7 @@ data Venta = Venta
   , cantidad        :: Cantidad
   , precio_unitario :: PrecioUnitario
   , total           :: Total
-  } deriving (Show, Generic)
+  } deriving (Show, Generic, Eq, Ord)
 
 instance FromJSON Venta
 

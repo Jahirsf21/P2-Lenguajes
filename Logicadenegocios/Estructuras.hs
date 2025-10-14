@@ -28,3 +28,5 @@ data Venta = Venta
 instance FromJSON Venta
 
 data Ventas = Ventas [Venta] deriving Show
+
+data MetodoCompletacion = Media | Mediana | Moda

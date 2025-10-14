@@ -1,10 +1,8 @@
 module Logicadenegocios.ImportacionDatos (menuImportarDatos) where
+import Logicadenegocios.ProcesamientoDatos
 import Logicadenegocios.Estructuras
-
-
 import qualified Data.ByteString.Lazy.Char8 as B
 import Data.Aeson (decode)
-
 
 -- Función para validar los campos de los identificadores de las ventas y del producto relacionado a la venta
 -- Deben ser distintos de 0 para ser considerados válidos
@@ -50,29 +48,36 @@ imprimirErroresVenta (venta, errores) = do
   mapM_ (\e -> putStrLn ("  - " ++ e)) errores
 
 -- Función para mostrar el menú de la importación de datos
--- Solicita la ruta del archivo de ventas .json
-menuImportarDatos :: IO Ventas
-menuImportarDatos = do
+-- Solicita la ruta del archivo de ventas .json y combina con ventas existentes
+menuImportarDatos :: Ventas -> IO Ventas
+menuImportarDatos (Ventas ventasExistentes) = do
   putStrLn "Ingrese el nombre del archivo JSON de ventas:"
   archivo <- getLine
   contenido <- B.readFile archivo
   let ventasDecodificadas = decode contenido :: Maybe [Venta]
-
   case ventasDecodificadas of
     Just nuevasVentas -> do
       let (ventasValidas, ventasInvalidas) = separarVentas nuevasVentas
-      let ventasActualizadas = Ventas ventasValidas
-
+      let todasLasVentas = ventasExistentes ++ ventasValidas
+      let ventasActualizadas = Ventas todasLasVentas
+      
       putStrLn $ "\nVentas válidas importadas: " ++ show (length ventasValidas) ++ " registros"
-
+      putStrLn $ "Total de ventas en el sistema: " ++ show (length todasLasVentas) ++ " registros"
+      
+      -- Mostrar las ventas importadas
+      if not (null ventasValidas)
+        then do
+          putStrLn "\n=== Ventas importadas ==="
+          mapM_ mostrarVenta ventasValidas
+        else putStrLn ""
+      
       if null ventasInvalidas
         then putStrLn "\nTodas las líneas fueron válidas."
         else do
           putStrLn "\nLas siguientes líneas fueron excluidas por errores:"
           mapM_ imprimirErroresVenta ventasInvalidas
-
+      
       return ventasActualizadas
-
     Nothing -> do
       putStrLn "Error al parsear el archivo de ventas."
-      return (Ventas [])
+      return (Ventas ventasExistentes)

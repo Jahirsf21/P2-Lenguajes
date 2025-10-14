@@ -1,7 +1,7 @@
 module Main where
-
 import Logicadenegocios.ImportacionDatos (menuImportarDatos)
 import Logicadenegocios.ProcesamientoDatos (menuProcesadoDatos)
+import Logicadenegocios.AnalisisDatosTemporal (menuAnalisisDatosTemporal)
 import Logicadenegocios.Estructuras
 
 main :: IO ()
@@ -19,7 +19,7 @@ menuPrincipal ventas = do
     opcion <- getLine
     case opcion of
         "1" -> do
-            nuevasVentas <- menuImportarDatos
+            nuevasVentas <- menuImportarDatos ventas  
             menuPrincipal nuevasVentas
         "2" -> do
             ventasProcesadas <- menuProcesadoDatos ventas
@@ -28,8 +28,8 @@ menuPrincipal ventas = do
             putStrLn "Analizando datos..."
             menuPrincipal ventas
         "4" -> do
-            putStrLn "Análisis temporal..."
-            menuPrincipal ventas
+            ventasAnalizadas <- menuAnalisisDatosTemporal ventas
+            menuPrincipal ventasAnalizadas
         "5" -> putStrLn "Saliendo..."
         _   -> do
             putStrLn "Opción no válida, intente de nuevo."

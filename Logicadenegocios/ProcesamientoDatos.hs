@@ -1,6 +1,5 @@
 module Logicadenegocios.ProcesamientoDatos (menuProcesadoDatos, mostrarVenta) where
 import Logicadenegocios.Estructuras
-import Data.List (nubBy)
 
 -- Función para ordenar una lista usando quicksort
 -- Retorna una lista ordenada de menor a mayor
@@ -103,25 +102,32 @@ completarPrecio metodo ventas =
 -- Recibe la lista de ventas y retorna una tupla, una lista tiene las Ventas y la otra las Ventas que fueron eliminadas
 -- Las Ventas eliminadas son aquellas que tengan el mismo ID
 eliminarDuplicados :: [Venta] -> ([Venta], [VentaId])
-eliminarDuplicados ventas =
-  let ventasUnicas = nubBy (\venta1 venta2 -> venta_id venta1 == venta_id venta2) ventas
-      cantidadOriginal = length ventas
-      cantidadUnica = length ventasUnicas
-      cantidadDuplicados = cantidadOriginal - cantidadUnica
-      idsEliminados = if cantidadDuplicados > 0
-                      then obtenerIdsDuplicados ventas ventasUnicas
-                      else []
-  in (ventasUnicas, idsEliminados)
+eliminarDuplicados ventas = 
+    let ventasUnicas = eliminarDuplicadosAux ventas
+        idsEliminados = obtenerIdsDuplicados ventas ventasUnicas
+    in (ventasUnicas, idsEliminados)
+
+eliminarDuplicadosAux :: [Venta] -> [Venta]
+eliminarDuplicadosAux [] = []
+eliminarDuplicadosAux (x:xs) = 
+    let ventasRestantes = eliminarDuplicadosAux xs
+        esDuplicado = any (\v -> venta_id v == venta_id x) ventasRestantes
+    in if esDuplicado
+       then ventasRestantes
+       else x : ventasRestantes
 
 -- Función auxiliar para obtener los IDs de las ventas duplicadas eliminadas
 obtenerIdsDuplicados :: [Venta] -> [Venta] -> [VentaId]
 obtenerIdsDuplicados originales unicas =
   let idsOriginales = map venta_id originales
-      idsUnicos = map venta_id unicas
-      contarOcurrencias id lista = length (filter (== id) lista)
-      idsDuplicados = [id | id <- idsOriginales, contarOcurrencias id idsOriginales > 1]
-  in nubBy (==) idsDuplicados
-
+      contarOcurrencias id = length (filter (== id) idsOriginales)
+      idsDuplicados = [id | id <- idsOriginales, contarOcurrencias id > 1]
+      eliminarRepetidos [] = []
+      eliminarRepetidos (x:xs) 
+        | x `elem` xs = eliminarRepetidos xs
+        | otherwise = x : eliminarRepetidos xs
+  in eliminarRepetidos idsDuplicados
+  
 -- Función para mostra el ID de las Ventas.
 mostrarIds :: [VentaId] -> IO ()
 mostrarIds ids = mapM_ (\idVenta -> putStrLn $ "  - Venta ID: " ++ show idVenta) ids
@@ -156,7 +162,7 @@ mostrarMenuMetodo = do
   putStrLn "1. Media (promedio)"
   putStrLn "2. Mediana (valor central)"
   putStrLn "3. Moda (valor más frecuente)"
-  putStr "Seleccione una opción (1-3): "
+  putStrLn "Seleccione una opción (1-3): "
   opcion <- getLine
   case opcion of
     "1" -> do
@@ -204,6 +210,8 @@ menuProcesadoDatos (Ventas ventas) = do
         else do
           putStrLn "Ventas duplicadas eliminadas:"
           mostrarIds idsDuplicadosEliminados
-      
+
+      putStrLn "\n--- Ventas en el sistema después del procesamiento ---"
+      mapM_ mostrarVenta ventasFinales
       putStrLn $ "\nTotal de ventas procesadas: " ++ show (length ventasFinales)
       return (Ventas ventasFinales)

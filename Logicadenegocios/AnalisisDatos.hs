@@ -93,6 +93,49 @@ calcularPromedios ((anio, cat, suma, count):resto) =
     let promedio = if count > 0 then suma / fromIntegral count else 0.0
     in (anio, cat, promedio, count) : calcularPromedios resto
 
+--mostrar totales mensuales
+mostrarTotalesMensuales :: [(String, Float)] -> IO ()
+mostrarTotalesMensuales [] = putStrLn "  No hay datos mensuales."
+mostrarTotalesMensuales meses = do
+    putStrLn "  Ventas Mensuales:"
+    mostrarMesesAuxiliar meses
+
+mostrarMesesAuxiliar :: [(String, Float)] -> IO ()
+mostrarMesesAuxiliar [] = return ()
+mostrarMesesAuxiliar ((mes, total):resto) = do
+    putStrLn $ "Mes: " ++ mes ++ " Total de ventas: " ++ show total
+    mostrarMesesAuxiliar resto
+
+--mostrar totales anuales
+mostrarTotalesAnuales :: [(String, Float)] -> IO ()
+mostrarTotalesAnuales [] = putStrLn "  No hay datos anuales."
+mostrarTotalesAnuales anios = do
+    putStrLn "  Ventas Anuales:"
+    mostrarAniosAuxiliar anios
+
+mostrarAniosAuxiliar :: [(String, Float)] -> IO ()
+mostrarAniosAuxiliar [] = return ()
+mostrarAniosAuxiliar ((anio, total):resto) = do
+    putStrLn $ "Año: " ++ anio ++ " Total de ventas: " ++ show total
+    mostrarAniosAuxiliar resto
+
+--mostrar promedios por categoria
+mostrarPromediosCategoria :: [(String, String, Float, Int)] -> IO ()
+mostrarPromediosCategoria [] = putStrLn "  No hay datos de promedios por categoría."
+mostrarPromediosCategoria promedios = do
+    imprimir promedios
+    where
+        imprimir :: [(String, String, Float, Int)] -> IO ()
+        imprimir [] = return ()
+        imprimir (p:ps) = do
+            imprimirLinea p
+            imprimir ps
+
+        imprimirLinea :: (String, String, Float, Int) -> IO ()
+        imprimirLinea (anio, cat, prom, cant) =
+            putStrLn $ "   Año: " ++ anio ++ " - Categoría: " ++ cat ++ " - Promedio: " ++
+                show prom ++ " (cantidad de ventas: " ++ show cant ++ ")"
+
 -- ===== MENÚ INTERACTIVO =====
 menuAnalisisDatos :: Ventas -> IO ()
 menuAnalisisDatos ventas@(Ventas listaVentas) = do

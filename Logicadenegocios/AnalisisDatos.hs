@@ -13,10 +13,55 @@ totalVentas(Ventas ventas) = totalAuxiliar ventas
 -- Recibe una lista de ventas y retorna la suma de los totales de cada venta
 totalAuxiliar :: [Venta] -> Float
 totalAuxiliar [] = 0.0  
-totalAuxiliar (ventas:resto) =
-  total ventas + totalAuxiliar resto
+totalAuxiliar (ventas:resto) = total ventas + totalAuxiliar resto
 
+-- Función para extraer del año de una cadena de fecha con formato "yyyy-mm-dd"
+-- Recibe la fecha como cadena y retorna una cadena de texto con los primeros 4 caracteres que corresponden al año
+extraerAnio :: String -> String
+extraerAnio fecha = take 4 fecha
 
+-- Función para extraer el mes de una cadena de fecha con formato "yyyy-mm-dd"
+-- Recibe la fecha como cadena y retorna una cadena de texto con los primeros 7 caracteres que corresponden al año y mes
+extraerMes :: String -> String
+extraerMes fecha = take 7 fecha  -- "yyyy-mm"
+
+-- Ventas agrupadas por año
+ventasPorAnio :: Ventas -> [(String, Float)]
+ventasPorAnio (Ventas ventas) = agruparVentasPorAnio ventas []
+
+agruparVentasPorAnio :: [Venta] -> [(String, Float)] -> [(String, Float)]
+agruparVentasPorAnio [] acum = acum
+agruparVentasPorAnio (v:vs) acum =
+    let anio = extraerAnio (fecha v)
+        nuevoAcum = actualizarAcumulador anio (total v) acum
+    in agruparVentasPorAnio vs nuevoAcum
+
+actualizarAcumulador :: String -> Float -> [(String, Float)] -> [(String, Float)]
+actualizarAcumulador anio valor [] = [(anio, valor)]
+actualizarAcumulador anio valor ((a, v):resto)
+    | anio == a = (a, v + valor) : resto
+    | otherwise = (a, v) : actualizarAcumulador anio valor resto
+
+-- Ventas agrupadas por mes
+ventasPorMes :: Ventas -> [(String, Float)]
+ventasPorMes (Ventas ventas) = agruparVentasPorMes ventas []
+
+agruparVentasPorMes :: [Venta] -> [(String, Float)] -> [(String, Float)]
+agruparVentasPorMes [] acum = acum
+agruparVentasPorMes (v:vs) acum =
+    let mes = extraerMes (fecha v)
+        nuevoAcumulador = actualizarAcumuladorMes mes (total v) acum
+    in agruparVentasPorMes vs nuevoAcumulador
+
+actualizarAcumuladorMes :: String -> Float -> [(String, Float)] -> [(String, Float)]
+actualizarAcumuladorMes mes valor [] = [(mes, valor)]
+actualizarAcumuladorMes mes valor ((m, v):resto)
+    | mes == m  = (m, v + valor) : resto
+    | otherwise = (m, v) : actualizarAcumuladorMes mes valor resto
+
+-- Ventas mensuales y anuales combinadas
+totalesMensualesAnuales :: Ventas -> ([(String, Float)], [(String, Float)])
+totalesMensualesAnuales ventas = (ventasPorMes ventas, ventasPorAnio ventas)
 
 -- ===== MENÚ INTERACTIVO =====
 menuAnalisisDatos :: Ventas -> IO ()

@@ -2,6 +2,22 @@ module Logicadenegocios.AnalisisDatos (menuAnalisisDatos) where
 
 import Logicadenegocios.Estructuras
 
+-- ===== ANALISIS DE DATOS =====
+
+-- Función para calcular el total de ventas
+-- Recibe un objeto Ventas que contenga una lista de ventas y retorna el total de todas las ventas
+totalVentas :: Ventas -> Float
+totalVentas(Ventas ventas) = totalAuxiliar ventas
+
+-- Función auxiliar que implementa la recursividad para sumar los campos total de una lista de ventas
+-- Recibe una lista de ventas y retorna la suma de los totales de cada venta
+totalAuxiliar :: [Venta] -> Float
+totalAuxiliar [] = 0.0  
+totalAuxiliar (ventas:resto) =
+  total ventas + totalAuxiliar resto
+
+
+
 -- ===== MENÚ INTERACTIVO =====
 menuAnalisisDatos :: Ventas -> IO ()
 menuAnalisisDatos ventas@(Ventas listaVentas) = do

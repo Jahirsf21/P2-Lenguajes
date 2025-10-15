@@ -63,6 +63,36 @@ actualizarAcumuladorMes mes valor ((m, v):resto)
 totalesMensualesAnuales :: Ventas -> ([(String, Float)], [(String, Float)])
 totalesMensualesAnuales ventas = (ventasPorMes ventas, ventasPorAnio ventas)
 
+-- Promedio de ventas por categoría por año
+promedioVentasPorCategoriaPorAnio :: Ventas -> [(String, String, Float, Int)]
+promedioVentasPorCategoriaPorAnio (Ventas ventas) =
+    let estadisticas = acumularEstadisticas ventas []
+    in calcularPromedios estadisticas
+
+-- Acumular estadísticas por año y categoría
+acumularEstadisticas :: [Venta] -> [(String, String, Float, Int)] -> [(String, String, Float, Int)]
+acumularEstadisticas [] acum = acum
+acumularEstadisticas (v:vs) acum =
+    let anio = extraerAnio (fecha v)
+        cat = categoria v
+        totalVenta = total v
+        nuevoAcum = insertarActualizar anio cat totalVenta acum
+    in acumularEstadisticas vs nuevoAcum
+
+-- Insertar nueva entrada o actualizar existente
+insertarActualizar :: String -> String -> Float -> [(String, String, Float, Int)] -> [(String, String, Float, Int)]
+insertarActualizar anio cat valor [] = [(anio, cat, valor, 1)]
+insertarActualizar anio cat valor ((a, c, suma, count):resto)
+    | anio == a && cat == c = (a, c, suma + valor, count + 1) : resto
+    | otherwise = (a, c, suma, count) : insertarActualizar anio cat valor resto
+
+-- Calcular promedios de ventas
+calcularPromedios :: [(String, String, Float, Int)] -> [(String, String, Float, Int)]
+calcularPromedios [] = []
+calcularPromedios ((anio, cat, suma, count):resto) =
+    let promedio = if count > 0 then suma / fromIntegral count else 0.0
+    in (anio, cat, promedio, count) : calcularPromedios resto
+
 -- ===== MENÚ INTERACTIVO =====
 menuAnalisisDatos :: Ventas -> IO ()
 menuAnalisisDatos ventas@(Ventas listaVentas) = do

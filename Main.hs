@@ -28,7 +28,7 @@ menuPrincipal ventas = do
             ventasProcesadas <- menuProcesadoDatos ventas
             menuPrincipal ventasProcesadas
         "3" -> do
-            putStrLn "Analizando datos..."
+            menuAnalisisDatos ventas
             menuPrincipal ventas
         "4" -> do
             ventasAnalizadas <- menuAnalisisDatosTemporal ventas

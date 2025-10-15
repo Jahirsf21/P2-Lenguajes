@@ -63,3 +63,42 @@ topCincoCategorias ventas =
         categoriasOrdenadas = ordenarCategorias (categorias, ventas)
     in 
         take 5 categoriasOrdenadas
+
+
+
+
+imprimirCategoriasAux :: ([Categoria], [Venta], Int) -> IO ()
+imprimirCategoriasAux ([], _, _) = return ()
+imprimirCategoriasAux (cat:xs, ventas, n) = do
+    putStrLn "Top 5 Categorías con más ventas"
+    putStrLn (show n ++ "- " ++ cat ++ ": " ++ show (totalVentasCategoria cat ventas))
+    imprimirCategoriasAux (xs, ventas, n + 1)
+
+imprimirTopCincoCategorias :: [Venta] -> IO ()
+imprimirTopCincoCategorias ventas =
+    imprimirCategoriasAux (topCincoCategorias ventas, ventas, 1)
+
+menuEstadisticas :: Ventas -> IO ()
+menuEstadisticas (Ventas ventas) = do
+    if null ventas
+       then putStrLn "\nNo hay ventas cargadas. Importe datos primero."
+       else do
+           putStrLn "\n--- Estadísticas ---"
+           putStrLn "A - Top 5 Categorías con más ventas"
+           putStrLn "B - Producto más vendido"
+           putStrLn "C - Categoría con menor participación"
+           putStrLn "D - Resumen General"
+           putStrLn "R- Regresar"
+           putStrLn "Seleccione una opción: "
+           opcion <- getLine
+           case opcion of 
+               "A" -> do
+                   imprimirTopCincoCategorias ventas
+                   menuEstadisticas (Ventas ventas) 
+               "R" -> do
+                   putStrLn "Regresando al menú principal..." 
+               _ -> do
+                   putStrLn "Opción no válida, intente de nuevo."
+                   menuEstadisticas (Ventas ventas)
+
+

@@ -1,22 +1,152 @@
-[ 
-    { 
-        "venta_id": 1, 
-        "fecha": "2023-01-04", 
-        "producto_id": 109, 
-        "producto_nombre": "Camara", 
-        "categoria": "Electronica", 
-        "cantidad": 2, 
-        "precio_unitario": 250.0, 
-        "total": 500.0 
-    }, 
-    { 
-        "venta_id": 2, 
-        "fecha": "2023-01-12", 
-        "producto_id": 106, 
-        "producto_nombre": "Telefono", 
-        "categoria": "Electronica", 
-        "cantidad": 0, 
-        "precio_unitario": 500.0, 
-        "total": 500.0 
-    } 
-] 
+[
+    {
+        "venta_id": 1,
+        "fecha": "2024-03-15",
+        "producto_id": 201,
+        "producto_nombre": "Laptop Pro",
+        "categoria": "Electronica",
+        "cantidad": 1,
+        "precio_unitario": 1200.0,
+        "total": 1200.0
+    },
+    {
+        "venta_id": 2,
+        "fecha": "2024-04-22",
+        "producto_id": 305,
+        "producto_nombre": "Silla de Oficina Ergonómica",
+        "categoria": "Muebles",
+        "cantidad": 2,
+        "precio_unitario": 150.0,
+        "total": 300.0
+    },
+    {
+        "venta_id": 3,
+        "fecha": "2024-05-01",
+        "producto_id": 410,
+        "producto_nombre": "Zapatillas para Correr",
+        "categoria": "Deportes",
+        "cantidad": 1,
+        "precio_unitario": 89.99,
+        "total": 89.99
+    },
+    {
+        "venta_id": 4,
+        "fecha": "2024-05-19",
+        "producto_id": 112,
+        "producto_nombre": "Cafetera de Goteo",
+        "categoria": "Hogar",
+        "cantidad": 1,
+        "precio_unitario": 45.50,
+        "total": 45.50
+    },
+    {
+        "venta_id": 5,
+        "fecha": "2024-06-11",
+        "producto_id": 520,
+        "producto_nombre": "Libro de Ciencia Ficción",
+        "categoria": "Libros",
+        "cantidad": 3,
+        "precio_unitario": 15.0,
+        "total": 45.0
+    },
+    {
+        "venta_id": 6,
+        "fecha": "2024-06-30",
+        "producto_id": 208,
+        "producto_nombre": "Monitor Curvo 27 pulgadas",
+        "categoria": "Electronica",
+        "cantidad": 1,
+        "precio_unitario": 320.0,
+        "total": 320.0
+    },
+    {
+        "venta_id": 7,
+        "fecha": "2024-07-04",
+        "producto_id": 601,
+        "producto_nombre": "Set de Herramientas Básico",
+        "categoria": "Ferretería",
+        "cantidad": 1,
+        "precio_unitario": 75.0,
+        "total": 75.0
+    },
+    {
+        "venta_id": 8,
+        "fecha": "2024-07-21",
+        "producto_id": 125,
+        "producto_nombre": "Juego de Sábanas Queen",
+        "categoria": "Hogar",
+        "cantidad": 2,
+        "precio_unitario": 55.0,
+        "total": 110.0
+    },
+    {
+        "venta_id": 9,
+        "fecha": "2024-08-08",
+        "producto_id": 215,
+        "producto_nombre": "Teclado Mecánico RGB",
+        "categoria": "Electronica",
+        "cantidad": 1,
+        "precio_unitario": 110.0,
+        "total": 110.0
+    },
+    {
+        "venta_id": 10,
+        "fecha": "2024-08-17",
+        "producto_id": 730,
+        "producto_nombre": "Crema Hidratante Facial",
+        "categoria": "Cuidado Personal",
+        "cantidad": 4,
+        "precio_unitario": 22.0,
+        "total": 88.0
+    },
+    {
+        "venta_id": 11,
+        "fecha": "2024-09-05",
+        "producto_id": 415,
+        "producto_nombre": "Balón de Fútbol",
+        "categoria": "Deportes",
+        "cantidad": 5,
+        "precio_unitario": 25.0,
+        "total": 125.0
+    },
+    {
+        "venta_id": 12,
+        "fecha": "2024-09-28",
+        "producto_id": 310,
+        "producto_nombre": "Escritorio de Madera",
+        "categoria": "Muebles",
+        "cantidad": 1,
+        "precio_unitario": 199.99,
+        "total": 199.99
+    },
+    {
+        "venta_id": 13,
+        "fecha": "2023-10-10",
+        "producto_id": 801,
+        "producto_nombre": "Comida para Perro 15kg",
+        "categoria": "Mascotas",
+        "cantidad": 1,
+        "precio_unitario": 60.0,
+        "total": 60.0
+    },
+    {
+        "venta_id": 14,
+        "fecha": "2023-10-31",
+        "producto_id": 905,
+        "producto_nombre": "Disfraz de Halloween",
+        "categoria": "Juguetes y Juegos",
+        "cantidad": 2,
+        "precio_unitario": 35.0,
+        "total": 70.0
+    },
+    {
+        "venta_id": 15,
+        "fecha": "2023-11-15",
+        "producto_id": 220,
+        "producto_nombre": "Disco Duro Externo 2TB",
+        "categoria": "Electronica",
+        "cantidad": 1,
+        "precio_unitario": 85.0,
+        "total": 85.0
+    }
+]

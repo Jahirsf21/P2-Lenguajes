@@ -4,6 +4,7 @@ import Logicadenegocios.ProcesamientoDatos (menuProcesadoDatos)
 import Logicadenegocios.AnalisisTemporal (menuAnalisisDatosTemporal)
 import Logicadenegocios.Estructuras
 import Logicadenegocios.Estadisticas (menuEstadisticas)
+import Logicadenegocios.AnalisisDatos (menuAnalisisDatos)
 
 
 main :: IO ()

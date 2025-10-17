@@ -96,15 +96,6 @@ nombreProducto (id, x:xs) =
         else nombreProducto (id, xs)
 
 
-cantVentasProductoAux :: (ProductoId, [Venta], Int) -> Int
-cantVentasProductoAux (_, [], res) = res
-cantVentasProductoAux (prod, x:xs, res) =
-  if producto_id x == prod
-     then cantVentasProductoAux (prod, xs, res + cantidad x)
-     else cantVentasProductoAux (prod, xs, res)
-
-cantVentasProducto :: (ProductoId , [Venta]) -> Int
-cantVentasProducto (id, ventas) = cantVentasProductoAux (id, ventas, 0)
 
 mayorVentaProducto :: ([Venta], [ProductoId], ProductoId, Int) -> ProductoId
 mayorVentaProducto (_, [], mayor, _) = mayor
@@ -129,6 +120,56 @@ imprimirMayorVentaProducto ventas =
         else putStrLn (nombreMayor ++ ": " ++ show cantidadProducto ++ " ventas")
     
 
+cantVentasProductoAux :: (ProductoId, [Venta], Int) -> Int
+cantVentasProductoAux (_, [], res) = res
+cantVentasProductoAux (prod, x:xs, res) =
+  if producto_id x == prod
+     then cantVentasProductoAux (prod, xs, res + cantidad x)
+     else cantVentasProductoAux (prod, xs, res)
+
+cantVentasProducto :: (ProductoId , [Venta]) -> Int
+cantVentasProducto (id, ventas) = cantVentasProductoAux (id, ventas, 0)
+
+cantVentasCategoriaAux :: (Categoria, [Venta], Int) -> Int
+cantVentasCategoriaAux (_, [], res) = res
+cantVentasCategoriaAux (cat, x:xs, res) =
+  if categoria x == cat
+     then cantVentasCategoriaAux (cat, xs, res + cantidad x)
+     else cantVentasCategoriaAux (cat, xs, res)
+
+cantVentasCategoria :: (Categoria , [Venta]) -> Int
+cantVentasCategoria (cat, ventas) = cantVentasCategoriaAux (cat, ventas, 0)
+
+menorCantVentaCategoria :: ([Venta], [Categoria], Categoria, Int) -> Categoria
+menorCantVentaCategoria (_, [], menor, _) = menor
+menorCantVentaCategoria (ventas, x:xs, menor, cantMenor) =
+    let 
+        cantVentas = cantVentasCategoria (x, ventas)
+    in
+        if cantVentas < cantMenor
+            then menorCantVentaCategoria (ventas, xs, x, cantVentas)
+            else menorCantVentaCategoria (ventas, xs, menor, cantMenor)
+
+
+nombreCategoria :: (Categoria, [Venta]) -> String
+nombreCategoria (_, []) = "Categoría no encontrada"
+nombreCategoria (cat, x:xs) =
+    if categoria x == cat
+        then categoria x
+        else nombreCategoria (cat, xs)
+
+imprimirMenorCantVentaCategoria :: [Venta] -> IO()
+imprimirMenorCantVentaCategoria ventas = 
+    let 
+        categorias = todasLasCategorias ventas
+        menorCategoria = menorCantVentaCategoria (ventas, categorias, "",999999)
+        cantidadCategoria = cantVentasCategoria (menorCategoria, ventas)
+        nombreMenor = nombreCategoria (menorCategoria, ventas)
+    in do
+        putStrLn "Categoría con menor participación"
+        if cantidadCategoria == 1 then putStrLn (nombreMenor ++ ": " ++ show cantidadCategoria ++ " venta")
+        else putStrLn (nombreMenor ++ ": " ++ show cantidadCategoria ++ " ventas")
+
 menuEstadisticas :: Ventas -> IO ()
 menuEstadisticas (Ventas ventas) = do
     if null ventas
@@ -143,15 +184,18 @@ menuEstadisticas (Ventas ventas) = do
            putStrLn "Seleccione una opción: "
            opcion <- getLine
            case opcion of 
-               "A" -> do
+                "A" -> do
                    imprimirTopCincoCategorias ventas
                    menuEstadisticas (Ventas ventas)
-               "B" -> do
+                "B" -> do
                    imprimirMayorVentaProducto ventas
                    menuEstadisticas (Ventas ventas)
-               "R" -> do
+                "C" -> do
+                    imprimirMenorCantVentaCategoria ventas
+                    menuEstadisticas (Ventas ventas)
+                "R" -> do
                    putStrLn "Regresando al menú principal..."
-               _ -> do
+                _ -> do
                    putStrLn "Opción no válida, intente de nuevo."
                    menuEstadisticas (Ventas ventas)
 

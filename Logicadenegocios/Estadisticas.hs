@@ -170,6 +170,127 @@ imprimirMenorCantVentaCategoria ventas =
         if cantidadCategoria == 1 then putStrLn (nombreMenor ++ ": " ++ show cantidadCategoria ++ " venta")
         else putStrLn (nombreMenor ++ ": " ++ show cantidadCategoria ++ " ventas")
 
+
+imprimirCantVentasCategoriasAux  :: ([Categoria], [Venta]) -> IO ()
+imprimirCantVentasCategoriasAux ([], _) = return ()
+imprimirCantVentasCategoriasAux (cat:xs, ventas) = do
+    putStrLn (cat ++ ": " ++ show (cantVentasCategoria (cat, ventas)))
+    imprimirCantVentasCategoriasAux (xs, ventas)
+
+
+imprimirCantVentasCategorias :: [Venta] -> IO()
+imprimirCantVentasCategorias ventas =
+    let
+        categorias = todasLasCategorias ventas
+    in do
+        putStrLn "1- Cantidad de Ventas por Categoría"
+        imprimirCantVentasCategoriasAux (categorias, ventas)
+
+
+ventaMasAltaAux :: ([Venta], Venta, Float) -> Venta
+ventaMasAltaAux ([], mayor, _) = mayor
+ventaMasAltaAux (x:xs, mayor, cantMayor) =
+    if total x > cantMayor 
+        then ventaMasAltaAux (xs, x, total x) 
+        else ventaMasAltaAux (xs, mayor, cantMayor)
+
+ventaMasAlta :: [Venta] -> Venta
+ventaMasAlta (x:xs) = ventaMasAltaAux (xs, x, total x)
+
+ventaMasBajaAux :: ([Venta], Venta, Float) -> Venta
+ventaMasBajaAux ([], menor, _) = menor
+ventaMasBajaAux (x:xs, menor, cantMenor) =
+    if total x < cantMenor
+        then ventaMasBajaAux (xs, x, total x)
+        else ventaMasBajaAux (xs, menor, cantMenor)
+
+ventaMasBaja :: [Venta] -> Venta
+ventaMasBaja (x:xs) = ventaMasBajaAux (xs, x, total x)
+
+imprimirVenta :: Venta -> IO()
+imprimirVenta venta = do 
+        putStrLn ("Venta " ++ show (venta_id venta) )
+        putStrLn ("Producto: " ++ show (producto_nombre venta))
+        putStrLn ("Total: " ++ show (total venta))
+
+
+
+
+imprimirVentaAltaBaja :: [Venta] -> IO()
+imprimirVentaAltaBaja ventas = 
+    let
+        ventaAlta = ventaMasAlta ventas
+        ventaBaja = ventaMasBaja ventas
+    in do
+        putStrLn "2- Venta más alta:"
+        imprimirVenta ventaAlta
+        putStrLn "3- Venta más baja:"
+        imprimirVenta ventaBaja
+        
+productosPorCategoriaAux :: ([Venta], Categoria, [ProductoId]) -> [ProductoId]
+productosPorCategoriaAux ([], _, productos) = productos
+productosPorCategoriaAux (x:xs, cat, productos) =
+    if categoria x == cat
+        then 
+            if producto_id x `elem` productos
+                then productosPorCategoriaAux (xs, cat, productos)
+                else productosPorCategoriaAux (xs, cat, producto_id x : productos)
+        else productosPorCategoriaAux (xs, cat, productos)
+
+
+
+productosPorCategoria :: ([Venta], Categoria) -> [ProductoId]
+productosPorCategoria (ventas, cat) = productosPorCategoriaAux (ventas, cat, [])
+
+cantProductosCategoria :: ([Venta], Categoria) -> Int
+cantProductosCategoria (ventas, cat) = length (productosPorCategoria(ventas, cat))
+
+categoriaMasVariadaAux :: ([Venta], [Categoria], Categoria, Int) -> Categoria
+categoriaMasVariadaAux (_, [], mayor, _) = mayor
+categoriaMasVariadaAux (ventas, x:xs, mayor, cantMayor) =
+    let
+        cantProductos = cantProductosCategoria (ventas, x)
+    in
+        if cantProductos > cantMayor
+            then categoriaMasVariadaAux (ventas, xs, x, cantProductos)
+            else categoriaMasVariadaAux (ventas, xs, mayor, cantMayor)
+
+
+
+categoriaMasVariada :: [Venta] -> Categoria
+categoriaMasVariada ventas =
+    let 
+        categorias = todasLasCategorias ventas
+        primera = head categorias
+        cantInicial = cantProductosCategoria (ventas, primera)
+    in
+        categoriaMasVariadaAux (ventas, categorias, primera, cantInicial)
+
+
+imprimirCategoriaMasVariadaAux :: ([Venta], Categoria) -> IO()
+imprimirCategoriaMasVariadaAux (ventas, categoria) = 
+    let 
+        cantProductos = cantProductosCategoria (ventas, categoria)
+    in
+        if cantProductos == 1 then putStrLn (categoria ++ ": " ++ show cantProductos ++ " producto")
+        else putStrLn (categoria ++ ": " ++ show cantProductos ++ " productos")
+        
+imprimirCategoriaMasVariada :: [Venta] -> IO()
+imprimirCategoriaMasVariada ventas = 
+    let 
+        categoria = categoriaMasVariada ventas 
+    in do
+        putStrLn "4- Categoría más variada"
+        imprimirCategoriaMasVariadaAux (ventas, categoria)
+
+imprimirResumenGeneral :: [Venta] -> IO()
+imprimirResumenGeneral ventas = do 
+    putStrLn "-----Resumen General-----"
+    imprimirCantVentasCategorias ventas
+    imprimirVentaAltaBaja ventas
+    imprimirCategoriaMasVariada ventas
+
+
 menuEstadisticas :: Ventas -> IO ()
 menuEstadisticas (Ventas ventas) = do
     if null ventas
@@ -193,6 +314,9 @@ menuEstadisticas (Ventas ventas) = do
                 "C" -> do
                     imprimirMenorCantVentaCategoria ventas
                     menuEstadisticas (Ventas ventas)
+                "D" -> do
+                    imprimirResumenGeneral ventas
+                    menuEstadisticas(Ventas ventas)
                 "R" -> do
                    putStrLn "Regresando al menú principal..."
                 _ -> do

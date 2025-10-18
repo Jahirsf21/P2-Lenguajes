@@ -1,7 +1,7 @@
 module Main where
 import Logicadenegocios.ImportacionDatos (menuImportarDatos)
 import Logicadenegocios.ProcesamientoDatos (menuProcesadoDatos)
-import Logicadenegocios.AnalisisTemporal (menuAnalisisDatosTemporal)
+import Logicadenegocios.AnalisisTemporal (menuAnalisisTemporal)
 import Logicadenegocios.Estructuras
 import Logicadenegocios.Estadisticas (menuEstadisticas)
 import Logicadenegocios.AnalisisDatos (menuAnalisisDatos)

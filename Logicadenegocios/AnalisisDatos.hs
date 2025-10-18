@@ -2,7 +2,6 @@ module Logicadenegocios.AnalisisDatos (menuAnalisisDatos) where
 import Logicadenegocios.Estructuras
 
 -- ===== ANALISIS DE DATOS =====
-
 -- Función para calcular el total de ventas
 -- Recibe un objeto Ventas que contenga una lista de ventas y retorna el total de todas las ventas
 totalVentas :: Ventas -> Float

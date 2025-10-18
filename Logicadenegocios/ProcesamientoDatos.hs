@@ -1,6 +1,11 @@
 module Logicadenegocios.ProcesamientoDatos (menuProcesadoDatos, mostrarVenta) where
 import Logicadenegocios.Estructuras
 
+-- Función para actualizar el campo 'total' de cada venta despues de haber realizado la completación de datos
+-- Retorna el nuevo valor total de la venta
+actualizarTotales:: [Venta] -> [Venta]
+actualizarTotales = map (\v -> v { total = fromIntegral (cantidad v) * precio_unitario v })
+
 -- Función para ordenar una lista usando quicksort
 -- Retorna una lista ordenada de menor a mayor
 quicksort :: [Float] -> [Float]
@@ -90,7 +95,7 @@ completarCantidad metodo ventas =
 completarPrecio :: MetodoCompletacion -> [Venta] -> ([Venta], [VentaId])
 completarPrecio metodo ventas =
   let preciosValidos = map precio_unitario $ filter (\venta -> precio_unitario venta /= 0) ventas
-      precioCalculado = aplicarMetodo metodo preciosValidos
+      precioCalculado = fromIntegral (round (aplicarMetodo metodo preciosValidos * 100)) / 100
       (ventasActualizadas, idsAlterados) = foldr procesarVenta ([], []) ventas
       procesarVenta venta (ventasAcumuladas, idsAcumulados) =
         if precio_unitario venta == 0
@@ -187,31 +192,33 @@ menuProcesadoDatos (Ventas ventas) = do
       return (Ventas [])
     else do
       putStrLn "\n--- Procesamiento de Datos ---"
-      
-      metodo <- mostrarMenuMetodo
-      
-      let (ventasConCantidad, idsAlteradosCantidad) = completarCantidad metodo ventas
-      if null idsAlteradosCantidad
-        then putStrLn "No se encontraron cantidades faltantes."
-        else do
-          putStrLn "Cantidades completadas con la media en las siguientes ventas:"
-          mostrarVentasModificadas idsAlteradosCantidad ventasConCantidad
-      
-      let (ventasConPrecio, idsAlteradosPrecios) = completarPrecio metodo ventasConCantidad
-      if null idsAlteradosPrecios
-        then putStrLn "No se encontraron precios faltantes."
-        else do
-          putStrLn "Precios completados con la media en las siguientes ventas:"
-          mostrarVentasModificadas idsAlteradosPrecios ventasConPrecio
-      
-      let (ventasFinales, idsDuplicadosEliminados) = eliminarDuplicados ventasConPrecio
+
+      let (ventasSinDuplicados, idsDuplicadosEliminados) = eliminarDuplicados ventas
       if null idsDuplicadosEliminados
         then putStrLn "No se encontraron duplicados."
         else do
           putStrLn "Ventas duplicadas eliminadas:"
           mostrarIds idsDuplicadosEliminados
 
+      metodo <- mostrarMenuMetodo
+
+      let (ventasConCantidad, idsAlteradosCantidad) = completarCantidad metodo ventasSinDuplicados
+      if null idsAlteradosCantidad
+        then putStrLn "No se encontraron cantidades faltantes."
+        else do
+          putStrLn "Cantidades completadas con la media en las siguientes ventas:"
+          mostrarVentasModificadas idsAlteradosCantidad ventasConCantidad
+
+      let (ventasConPrecio, idsAlteradosPrecios) = completarPrecio metodo ventasConCantidad
+      if null idsAlteradosPrecios
+        then putStrLn "No se encontraron precios faltantes."
+        else do
+          putStrLn "Precios completados con la media en las siguientes ventas:"
+          mostrarVentasModificadas idsAlteradosPrecios ventasConPrecio
+
+      let ventasConTotales = actualizarTotales ventasConPrecio
+
       putStrLn "\n--- Ventas en el sistema después del procesamiento ---"
-      mapM_ mostrarVenta ventasFinales
-      putStrLn $ "\nTotal de ventas procesadas: " ++ show (length ventasFinales)
-      return (Ventas ventasFinales)
+      mapM_ mostrarVenta ventasConTotales
+      putStrLn $ "\nTotal de ventas procesadas: " ++ show (length ventasConTotales)
+      return (Ventas ventasConTotales)

@@ -1,5 +1,8 @@
-module Logicadenegocios.AnalisisDatos (menuAnalisisDatos) where
+module Logicadenegocios.AnalisisDatos (menuAnalisisDatos, menuBusquedaEspecifica) where
 import Logicadenegocios.Estructuras
+import Data.List.Split (splitOn)
+import Data.Char (isDigit)
+
 
 -- ===== ANALISIS DE DATOS =====
 
@@ -138,6 +141,101 @@ mostrarPromediosCategoria promedios = do
                  " | Promedio: " ++ formatearNumero prom ++ 
                  " | Cantidad de ventas: " ++ show cant
       imprimir ps
+
+-- Devuelve el año como Int
+obtenerAnioInt :: String -> Int
+obtenerAnioInt fecha =
+    let partes = splitOn "-" fecha
+    in read (head partes) :: Int
+
+-- Devuelve el mes como Int
+obtenerMesInt :: String -> Int
+obtenerMesInt fecha =
+    let partes = splitOn "-" fecha
+    in read (partes !! 1) :: Int
+
+obtenerVentasRangoFecha :: (String, String, [Venta]) -> [Venta]
+obtenerVentasRangoFecha (_, _, []) = []
+obtenerVentasRangoFecha (inicio, fin, x:xs) =
+    let
+        mesInicio = obtenerMesInt inicio
+        anioInicio = obtenerAnioInt inicio
+        mesFin = obtenerMesInt fin
+        anioFin = obtenerAnioInt fin
+        mesActual = obtenerMesInt (fecha x)
+        anioActual = obtenerAnioInt (fecha x)
+    in
+        if (anioActual > anioInicio || (anioActual == anioInicio && mesActual >= mesInicio)) &&
+           (anioActual < anioFin || (anioActual == anioFin && mesActual <= mesFin))
+           then x : obtenerVentasRangoFecha (inicio, fin, xs)
+           else obtenerVentasRangoFecha (inicio, fin, xs)
+
+mostrarVentasRangoFechaAux :: (String, String, [Venta], String) -> IO()
+mostrarVentasRangoFechaAux (_, _, [], _) = return ()
+mostrarVentasRangoFechaAux (inicio, fin, x:xs, res) =
+    let
+        contenido = res ++ "Venta " ++ show (venta_id x) ++ "\nFecha: " ++ fecha x ++ "\nProducto: " ++ producto_nombre x ++ "\nTOTAL: " ++ show (total x)
+    in do
+        putStrLn contenido
+        putStrLn "-------------------------"
+        mostrarVentasRangoFechaAux (inicio, fin, xs, "")
+        
+
+mostrarVentasRangoFecha :: (String, String, [Venta]) -> IO()
+mostrarVentasRangoFecha (inicio, fin, ventas) =
+    let
+        ventasRango = obtenerVentasRangoFecha (inicio, fin, ventas)
+    in 
+        if null ventasRango then putStrLn "No se encontraron ventas en ese rango"
+        else mostrarVentasRangoFechaAux (inicio, fin, ventasRango, "")
+
+comprobarFormato :: String -> Bool
+comprobarFormato fecha =
+    let 
+        mes = obtenerMesInt fecha
+    in
+        length fecha == 7 && fecha !! 4 == '-' && all isDigit (take 4 fecha) && all isDigit (drop 5 fecha) 
+        && mes >= 1 && mes <= 12            
+
+compararFechas :: (String, String) -> Bool
+compararFechas (inicio, fin) = 
+    let
+        mesInicio = obtenerMesInt inicio
+        anioInicio = obtenerAnioInt inicio
+        mesFin = obtenerMesInt fin
+        anioFin = obtenerAnioInt fin
+    in
+        anioFin > anioInicio || (anioFin == anioInicio && mesFin >= mesInicio)
+
+
+menuBusquedaEspecifica :: Ventas -> IO ()
+menuBusquedaEspecifica ventas@(Ventas listaVentas)
+    | null listaVentas = do
+        putStrLn "\nNo hay ventas cargadas. Importe datos primero."
+        return ()
+    | otherwise = do
+        putStrLn "Ingrese la fecha de inicio (formato YYYY-MM):"
+        inicio <- getLine
+        putStrLn "Ingrese la fecha de fin (formato YYYY-MM):"
+        fin <- getLine
+
+        if null inicio || null fin
+            then do
+                putStrLn "\nLas fechas no pueden estar vacías. Intente de nuevo."
+                menuBusquedaEspecifica ventas
+            else if comprobarFormato inicio && comprobarFormato fin
+                then 
+                    if compararFechas (inicio, fin) then do
+                        putStrLn "\n------- Ventas Encontradas en el Rango de Fechas -------"
+                        mostrarVentasRangoFecha (inicio, fin, listaVentas)
+                    else do
+                        putStrLn "\nLa fecha final no puede ser anterior a la fecha de inicio. Intente de nuevo\n"
+                        menuBusquedaEspecifica ventas
+                else do
+                    putStrLn "\nLas fechas deben de tener el formato YYYY-MM. Intente de nuevo.\n"
+                    menuBusquedaEspecifica ventas
+
+
 
 -- ===== MENÚ INTERACTIVO =====
 menuAnalisisDatos :: Ventas -> IO ()

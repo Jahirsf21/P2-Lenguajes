@@ -3,8 +3,8 @@ import Logicadenegocios.ImportacionDatos (menuImportarDatos)
 import Logicadenegocios.ProcesamientoDatos (menuProcesadoDatos)
 import Logicadenegocios.AnalisisTemporal (menuAnalisisTemporal)
 import Logicadenegocios.Estructuras
-import Logicadenegocios.Estadisticas (menuEstadisticas)
-import Logicadenegocios.AnalisisDatos (menuAnalisisDatos)
+import Logicadenegocios.Estadisticas (menuEstadisticas, ventaMasAlta)
+import Logicadenegocios.AnalisisDatos (menuAnalisisDatos, menuBusquedaEspecifica)
 
 
 main :: IO ()
@@ -17,8 +17,9 @@ menuPrincipal ventas = do
     putStrLn "2. Procesamiento de Datos"
     putStrLn "3. Análisis de Datos"
     putStrLn "4. Análisis Temporal"
-    putStrLn "5. Estadisticas"
-    putStrLn "6. Salir"
+    putStrLn "5. Búsqueda Específica"
+    putStrLn "6. Estadisticas"
+    putStrLn "7. Salir"
     putStrLn "Seleccione una opción: "
     opcion <- getLine
     case opcion of
@@ -35,9 +36,12 @@ menuPrincipal ventas = do
             menuAnalisisTemporal ventas
             menuPrincipal ventas
         "5" -> do
+            menuBusquedaEspecifica ventas 
+            menuPrincipal ventas
+        "6" -> do
             menuEstadisticas ventas
             menuPrincipal ventas
-        "6" -> putStrLn "Saliendo..."
+        "7" -> putStrLn "Saliendo..."
         _   -> do
             putStrLn "Opción no válida, intente de nuevo."
             menuPrincipal ventas

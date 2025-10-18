@@ -1,5 +1,5 @@
 [
-  {"venta_id": 1, "fecha": "2024-03-15", "producto_id": 201, "producto_nombre": "Laptop Pro", "categoria": "Electronica", "cantidad": 1, "precio_unitario": 1200.0, "total": 1200.0},
+  {"venta_id": 1, "fecha": "12-03-2024", "producto_id": 201, "producto_nombre": "Laptop Pro", "categoria": "Electronica", "cantidad": 1, "precio_unitario": 1200.0, "total": 1200.0},
   {"venta_id": 2, "fecha": "2024-04-22", "producto_id": 305, "producto_nombre": "Silla de Oficina Ergonómica", "categoria": "Muebles", "cantidad": 2, "precio_unitario": 150.0, "total": 300.0},
   {"venta_id": 3, "fecha": "2024-05-01", "producto_id": 410, "producto_nombre": "Zapatillas para Correr", "categoria": "Deportes", "cantidad": 1, "precio_unitario": 89.99, "total": 89.99},
   {"venta_id": 4, "fecha": "2024-05-19", "producto_id": 112, "producto_nombre": "Cafetera de Goteo", "categoria": "Hogar", "cantidad": 1, "precio_unitario": 45.50, "total": 45.50},

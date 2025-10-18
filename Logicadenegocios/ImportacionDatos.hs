@@ -4,6 +4,8 @@ import Logicadenegocios.Estructuras
 import qualified Data.ByteString.Lazy.Char8 as B
 import Data.Aeson (decode)
 import System.Directory (doesFileExist)
+import Data.Char(isDigit)
+import Data.List.Split (splitOn)
 
 -- Función para validar los campos de los identificadores de las ventas y del producto relacionado a la venta
 -- Deben ser distintos de 0 para ser considerados válidos
@@ -18,7 +20,18 @@ validarTexto v = not (null $ producto_nombre v) && not (null $ categoria v)
 -- Función para validar el campo de la fecha de la venta
 -- Debe ser distinto de null o vacío "" para ser considerada válida
 validarFecha :: Venta -> Bool
-validarFecha v = not (null $ fecha v)
+validarFecha v =
+  let f = fecha v
+      partes = splitOn "-" f
+      formatoValido = length f == 10
+                   && length partes == 3
+                   && all isDigit (partes !! 0)
+                   && all isDigit (partes !! 1)
+                   && all isDigit (partes !! 2)
+                   && f !! 4 == '-' && f !! 7 == '-'
+                   && (let mes = read (partes !! 1) :: Int in mes >= 1 && mes <= 12)
+                   && (let dia = read (partes !! 2) :: Int in dia >= 1 && dia <= 31)
+  in not (null f) && formatoValido
 
 -- Función para validar verificar que la venta tenga datos validos
 -- Debe cumplirse las 3 validaciones anteriores
@@ -26,7 +39,7 @@ esVentaValida :: Venta -> Either [String] ()
 esVentaValida v =
   let errores = concat
         [ if not (validarIdentificadores v) then ["Identificadores inválidos (venta_id o producto_id)"] else []
-        , if not (validarFecha v) then ["Fecha vacía"] else []
+        , if not (validarFecha v) then ["Fecha vacía o inválida"] else []
         , if not (validarTexto v) then ["Nombre o categoría de producto vacíos"] else []
         ]
   in if null errores then Right () else Left errores

@@ -210,7 +210,7 @@ menuAnalisisTemporal ventas@(Ventas listaVentas) = do
 menuLoopTemporal :: Ventas -> IO ()
 menuLoopTemporal ventas = do
   putStrLn "\n========================================="
-  putStrLn "      ANÁLISIS TEMPORAL"
+  putStrLn "            ANÁLISIS TEMPORAL"
   putStrLn "========================================="
   putStrLn "1. Mes con mayor venta y día más activo"
   putStrLn "2. Calcular tasa de crecimiento trimestral"

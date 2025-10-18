@@ -159,7 +159,7 @@ mostrarAnalisisMensualSemanal (mesMayor, diaMasActivo) = do
 
 mostrarTasaCrecimiento :: Maybe Float -> String -> String -> IO ()
 mostrarTasaCrecimiento tasa trimestreActual trimestreAnterior = do
-  putStrLn "  --- Tasa de Crecimiento ---"
+  putStrLn "\n  === Tasa de Crecimiento ==="
   putStrLn $ "  Trimestre actual: " ++ trimestreActual
   putStrLn $ "  Trimestre anterior: " ++ trimestreAnterior
   case tasa of
@@ -215,8 +215,7 @@ menuLoopTemporal ventas = do
   putStrLn "1. Mes con mayor venta y día más activo"
   putStrLn "2. Calcular tasa de crecimiento trimestral"
   putStrLn "3. Resumen de ventas por trimestre"
-  putStrLn "4. Mostrar todos los análisis temporales"
-  putStrLn "5. Volver al menú principal"
+  putStrLn "4. Volver al menú principal"
   putStrLn "========================================="
   putStr "Seleccione una opción: "
   
@@ -249,16 +248,7 @@ menuLoopTemporal ventas = do
       mostrarResumenTrimestral resumen
       menuLoopTemporal ventas
 
-    "4" -> do
-      putStrLn "\n=== Análisis temporal completo ==="
-      let analisisMS = analisisMensualYSemanal ventas
-      let resumenTrim = resumenVentasTrimestrales ventas
-      mostrarAnalisisMensualSemanal analisisMS
-      putStrLn ""
-      mostrarResumenTrimestral resumenTrim
-      menuLoopTemporal ventas
-
-    "5" -> putStrLn "Volviendo al menú principal..."
+    "4" -> do putStrLn "Volviendo al menú principal..."
 
     _ -> do
       putStrLn "Opción no válida. Intente nuevamente."

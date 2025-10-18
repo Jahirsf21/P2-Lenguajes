@@ -143,7 +143,7 @@ mostrarPromediosCategoria promedios = do
 menuAnalisisDatos :: Ventas -> IO ()
 menuAnalisisDatos ventas@(Ventas listaVentas) = do
   if null listaVentas
-    then putStrLn "\nNo hay ventas cargadas. Importe datos primero."
+    then putStrLn "\n == No hay ventas cargadas. Importe datos primero =="
     else do
       putStrLn "\n========================================="
       putStrLn "      ANÁLISIS DE DATOS"

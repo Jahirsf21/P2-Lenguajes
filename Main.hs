@@ -32,8 +32,8 @@ menuPrincipal ventas = do
             menuAnalisisDatos ventas
             menuPrincipal ventas
         "4" -> do
-            ventasAnalizadas <- menuAnalisisDatosTemporal ventas
-            menuPrincipal ventasAnalizadas
+            menuAnalisisTemporal ventas
+            menuPrincipal ventas
         "5" -> do
             menuEstadisticas ventas
             menuPrincipal ventas

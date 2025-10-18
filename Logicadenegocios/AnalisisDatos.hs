@@ -1,5 +1,4 @@
 module Logicadenegocios.AnalisisDatos (menuAnalisisDatos) where
-
 import Logicadenegocios.Estructuras
 
 -- ===== ANALISIS DE DATOS =====
@@ -7,7 +6,7 @@ import Logicadenegocios.Estructuras
 -- Función para calcular el total de ventas
 -- Recibe un objeto Ventas que contenga una lista de ventas y retorna el total de todas las ventas
 totalVentas :: Ventas -> Float
-totalVentas(Ventas ventas) = totalAuxiliar ventas
+totalVentas (Ventas ventas) = totalAuxiliar ventas
 
 -- Función auxiliar que implementa la recursividad para sumar los campos total de una lista de ventas
 -- Recibe una lista de ventas y retorna la suma de los totales de cada venta
@@ -23,7 +22,7 @@ extraerAnio fecha = take 4 fecha
 -- Función para extraer el mes de una cadena de fecha con formato "yyyy-mm-dd"
 -- Recibe la fecha como cadena y retorna una cadena de texto con los primeros 7 caracteres que corresponden al año y mes
 extraerMes :: String -> String
-extraerMes fecha = take 7 fecha  -- "yyyy-mm"
+extraerMes fecha = take 7 fecha 
 
 -- Ventas agrupadas por año
 ventasPorAnio :: Ventas -> [(String, Float)]
@@ -93,6 +92,14 @@ calcularPromedios ((anio, cat, suma, count):resto) =
     let promedio = if count > 0 then suma / fromIntegral count else 0.0
     in (anio, cat, promedio, count) : calcularPromedios resto
 
+
+-- Formatear números con 2 decimales
+formatearNumero :: Float -> String
+formatearNumero num = 
+    let entero = floor (num * 100 + 0.5) 
+    in show (fromIntegral entero / 100 :: Float)
+
+-- ===== MOSTRAR RESULTADOS =====
 --mostrar totales mensuales
 mostrarTotalesMensuales :: [(String, Float)] -> IO ()
 mostrarTotalesMensuales [] = putStrLn "  No hay datos mensuales."
@@ -103,7 +110,7 @@ mostrarTotalesMensuales meses = do
 mostrarMesesAuxiliar :: [(String, Float)] -> IO ()
 mostrarMesesAuxiliar [] = return ()
 mostrarMesesAuxiliar ((mes, total):resto) = do
-    putStrLn $ "Mes: " ++ mes ++ " Total de ventas: " ++ show total
+    putStrLn $ "Mes: " ++ mes ++ " | Total de ventas: " ++ formatearNumero total
     mostrarMesesAuxiliar resto
 
 --mostrar totales anuales
@@ -116,7 +123,7 @@ mostrarTotalesAnuales anios = do
 mostrarAniosAuxiliar :: [(String, Float)] -> IO ()
 mostrarAniosAuxiliar [] = return ()
 mostrarAniosAuxiliar ((anio, total):resto) = do
-    putStrLn $ "Año: " ++ anio ++ " Total de ventas: " ++ show total
+    putStrLn $ "Año: " ++ anio ++ " | Total de ventas: " ++ formatearNumero total
     mostrarAniosAuxiliar resto
 
 --mostrar promedios por categoria
@@ -124,17 +131,13 @@ mostrarPromediosCategoria :: [(String, String, Float, Int)] -> IO ()
 mostrarPromediosCategoria [] = putStrLn "  No hay datos de promedios por categoría."
 mostrarPromediosCategoria promedios = do
     imprimir promedios
-    where
-        imprimir :: [(String, String, Float, Int)] -> IO ()
-        imprimir [] = return ()
-        imprimir (p:ps) = do
-            imprimirLinea p
-            imprimir ps
-
-        imprimirLinea :: (String, String, Float, Int) -> IO ()
-        imprimirLinea (anio, cat, prom, cant) =
-            putStrLn $ "   Año: " ++ anio ++ " - Categoría: " ++ cat ++ " - Promedio: " ++
-                show prom ++ " (cantidad de ventas: " ++ show cant ++ ")"
+  where
+    imprimir [] = return ()
+    imprimir ((anio, cat, prom, cant):ps) = do
+      putStrLn $ "Año: " ++ anio ++ " | Categoría: " ++ cat ++ 
+                 " | Promedio: " ++ formatearNumero prom ++ 
+                 " | Cantidad de ventas: " ++ show cant
+      imprimir ps
 
 -- ===== MENÚ INTERACTIVO =====
 menuAnalisisDatos :: Ventas -> IO ()
@@ -142,31 +145,37 @@ menuAnalisisDatos ventas@(Ventas listaVentas) = do
   if null listaVentas
     then putStrLn "\nNo hay ventas cargadas. Importe datos primero."
     else do
-      putStrLn "\n--- Análisis de Datos ---"
-      putStrLn "1. Total de Ventas General"
-      putStrLn "2. Totales Mensuales y Anuales" 
-      putStrLn "3. Promedio de Ventas por Categoría por Año"
+      putStrLn "\n========================================="
+      putStrLn "      ANÁLISIS DE DATOS"
+      putStrLn "========================================="
+      putStrLn "1. Total de ventas"
+      putStrLn "2. Totales mensuales y anuales"
+      putStrLn "3. Promedio de ventas por categoría por año"
       putStrLn "4. Volver al menú principal"
+      putStrLn "========================================="
       putStrLn "Seleccione una opción: "
       
       opcion <- getLine
       case opcion of
         "1" -> do
-          putStrLn "\n--- Total de ventas ---"
-          putStrLn $ "Total: " ++ show (totalVentas ventas)
+          putStrLn "\n=== Total de ventas ==="
+          putStrLn $ "Total: " ++ formatearNumero (totalVentas ventas)
           putStrLn $ "Cantidad de transacciones analizadas: " ++ show (length listaVentas)
+          menuAnalisisDatos ventas
         
         "2" -> do
-          putStrLn "\n--- Totales de ventas mensuales y anuales ---"
+          putStrLn "\n=== Totales de ventas mensuales y anuales ==="
           let (mensuales, anuales) = totalesMensualesAnuales ventas
           mostrarTotalesMensuales mensuales
           putStrLn ""
           mostrarTotalesAnuales anuales
+          menuAnalisisDatos ventas
         
         "3" -> do
-          putStrLn "\n--- Promedio de ventas por categoría por año ---"
+          putStrLn "\n=== Promedio de ventas por categoría por año ==="
           let promedios = promedioVentasPorCategoriaPorAnio ventas
           mostrarPromediosCategoria promedios
+          menuAnalisisDatos ventas
         
         "4" -> putStrLn "Volviendo al menú principal..."
         

@@ -2,9 +2,10 @@ module Logicadenegocios.Estadisticas where
 import Logicadenegocios.Estructuras
 import GHC.Generics (Generic)
 import Data.Aeson (FromJSON)
-import Data.List (sortBy)
+import Data.List (sortBy, isSuffixOf)
 import Data.Ord (comparing)
-
+import System.Directory (doesFileExist)
+import System.IO (withFile, IOMode(WriteMode), hSetEncoding, hPutStr, utf8)
 
 
 
@@ -65,7 +66,25 @@ topCincoCategorias ventas =
         take 5 categoriasOrdenadas
 
 
+parsearContenidoTopCincoCategorias :: ([Categoria], [Venta], String, Int ) -> String
+parsearContenidoTopCincoCategorias ([], _, contenido, _) = contenido
+parsearContenidoTopCincoCategorias (x:xs, ventas, contenido, n) = 
+    let
+        total = totalVentasCategoria x ventas
+        linea = show n ++ "," ++ x ++ "," ++ show total ++ "\n"
+        nuevoCont = contenido ++ linea
+    in 
+        parsearContenidoTopCincoCategorias (xs, ventas, nuevoCont, n+1)
 
+guardarTopCincoCategorias :: ([Categoria], [Venta]) -> IO()
+guardarTopCincoCategorias (categorias, ventas) = 
+    let contenido = parsearContenidoTopCincoCategorias (categorias, ventas, "Posicion,Categoria,Total\n" ,1)
+    in do
+        archivo <- preguntaGuardar  
+        withFile archivo WriteMode $ \handle -> do
+            hSetEncoding handle utf8
+            hPutStr handle contenido
+        putStrLn "Se ha guardado la estadistica correctamente"
 
 imprimirCategoriasAux :: ([Categoria], [Venta], Int) -> IO ()
 imprimirCategoriasAux ([], _, _) = return ()
@@ -74,9 +93,13 @@ imprimirCategoriasAux (cat:xs, ventas, n) = do
     imprimirCategoriasAux (xs, ventas, n + 1)
 
 imprimirTopCincoCategorias :: [Venta] -> IO ()
-imprimirTopCincoCategorias ventas = do
-    putStrLn "Top 5 Categorías con más ventas"
-    imprimirCategoriasAux (topCincoCategorias ventas, ventas, 1)
+imprimirTopCincoCategorias ventas = 
+    let
+        topCinco = topCincoCategorias ventas
+    in do
+        putStrLn "Top 5 Categorías con más ventas"
+        imprimirCategoriasAux (topCinco, ventas, 1)
+        guardarTopCincoCategorias (topCinco, ventas)
 
 todosLosProductosAux :: ([ProductoId], [Venta]) -> [ProductoId]
 todosLosProductosAux (productos, []) = productos
@@ -107,6 +130,17 @@ mayorVentaProducto (ventas, x:xs, mayor, cantMayor) =
             then mayorVentaProducto (ventas, xs, x, cantVentas)
             else mayorVentaProducto (ventas, xs, mayor, cantMayor)
 
+guardarMayorVentaProducto :: (String, Int) -> IO()
+guardarMayorVentaProducto(nombre, cantidad) = 
+    let contenido = "Nombre,Cantidad\n" ++ nombre ++ "," ++ show cantidad
+    in do
+        archivo <- preguntaGuardar  
+        withFile archivo WriteMode $ \handle -> do
+            hSetEncoding handle utf8
+            hPutStr handle contenido
+        putStrLn "Se ha guardado la estadistica correctamente"
+
+
 imprimirMayorVentaProducto :: [Venta] -> IO()
 imprimirMayorVentaProducto ventas = 
     let 
@@ -118,6 +152,7 @@ imprimirMayorVentaProducto ventas =
         putStrLn "Producto más vendido"
         if cantidadProducto == 1 then putStrLn (nombreMayor ++ ": " ++ show cantidadProducto ++ " venta")
         else putStrLn (nombreMayor ++ ": " ++ show cantidadProducto ++ " ventas")
+        guardarMayorVentaProducto (nombreMayor, cantidadProducto)
     
 
 cantVentasProductoAux :: (ProductoId, [Venta], Int) -> Int
@@ -158,6 +193,17 @@ nombreCategoria (cat, x:xs) =
         then categoria x
         else nombreCategoria (cat, xs)
 
+guardarMenorCantVentaCategoria :: (String, Int) -> IO()
+guardarMenorCantVentaCategoria (nombre, cantidad) = 
+    let contenido = "Nombre,Cantidad\n" ++ nombre ++ "," ++ show cantidad
+    in do
+        archivo <- preguntaGuardar  
+        withFile archivo WriteMode $ \handle -> do
+            hSetEncoding handle utf8
+            hPutStr handle contenido
+        putStrLn "Se ha guardado la estadistica correctamente"
+
+
 imprimirMenorCantVentaCategoria :: [Venta] -> IO()
 imprimirMenorCantVentaCategoria ventas = 
     let 
@@ -169,6 +215,7 @@ imprimirMenorCantVentaCategoria ventas =
         putStrLn "Categoría con menor participación"
         if cantidadCategoria == 1 then putStrLn (nombreMenor ++ ": " ++ show cantidadCategoria ++ " venta")
         else putStrLn (nombreMenor ++ ": " ++ show cantidadCategoria ++ " ventas")
+        guardarMenorCantVentaCategoria (nombreMenor, cantidadCategoria)
 
 
 imprimirCantVentasCategoriasAux  :: ([Categoria], [Venta]) -> IO ()
@@ -177,6 +224,16 @@ imprimirCantVentasCategoriasAux (cat:xs, ventas) = do
     putStrLn (cat ++ ": " ++ show (cantVentasCategoria (cat, ventas)))
     imprimirCantVentasCategoriasAux (xs, ventas)
 
+parsearCantVentasCategorias :: ([Categoria], [Venta], String) -> String
+parsearCantVentasCategorias ([], _, contenido) = contenido
+parsearCantVentasCategorias (x:xs, ventas, contenido) =
+    let
+        cantidad = cantVentasCategoria (x, ventas)
+        linea = "1," ++ x ++ "," ++ show cantidad ++ "\n"
+        nuevoCont = contenido ++ linea
+    in parsearCantVentasCategorias (xs, ventas, nuevoCont)
+
+        
 
 imprimirCantVentasCategorias :: [Venta] -> IO()
 imprimirCantVentasCategorias ventas =
@@ -185,6 +242,7 @@ imprimirCantVentasCategorias ventas =
     in do
         putStrLn "1- Cantidad de Ventas por Categoría"
         imprimirCantVentasCategoriasAux (categorias, ventas)
+       
 
 
 ventaMasAltaAux :: ([Venta], Venta, Float) -> Venta
@@ -213,7 +271,31 @@ imprimirVenta venta = do
         putStrLn ("Producto: " ++ show (producto_nombre venta))
         putStrLn ("Total: " ++ show (total venta))
 
+preguntaGuardar :: IO String
+preguntaGuardar = do
+    putStrLn "Ingrese el nombre del archivo (CSV) donde desea guardar la estadística:"
+    nombre <- getLine
+    if null nombre
+        then do
+            putStrLn "El nombre no puede estar vacío."
+            preguntaGuardar
+        else do
+            let nombreCsv = if ".csv" `isSuffixOf` nombre
+                            then nombre
+                            else nombre ++ ".csv"
+            return nombreCsv
 
+
+parsearVentaAltaBaja :: [Venta] -> String
+parsearVentaAltaBaja ventas = 
+    let 
+        ventaAlta = ventaMasAlta ventas
+        ventaBaja = ventaMasBaja ventas
+        contenidoAlta = "Reporte,Venta,Producto,Cantidad\n2," ++ show (venta_id ventaAlta) ++ "," ++ producto_nombre ventaAlta ++ "," ++ show (total ventaAlta) ++ "\n"
+        contenidoBaja = "3,"++ show (venta_id ventaBaja) ++ "," ++ producto_nombre ventaBaja ++ "," ++ show (total ventaBaja) ++ "\n"
+        contenido = contenidoAlta ++ contenidoBaja
+    in
+        contenido
 
 
 imprimirVentaAltaBaja :: [Venta] -> IO()
@@ -267,6 +349,17 @@ categoriaMasVariada ventas =
         categoriaMasVariadaAux (ventas, categorias, primera, cantInicial)
 
 
+parsearCategoriaMasVariada :: [Venta] -> String
+parsearCategoriaMasVariada ventas =
+    let 
+        categoria = categoriaMasVariada ventas
+        cantidad = cantProductosCategoria (ventas, categoria)
+        contenido = "Reporte,Categoria,Cantidad\n4," ++ categoria ++ "," ++ show cantidad
+    in
+        contenido
+
+
+
 imprimirCategoriaMasVariadaAux :: ([Venta], Categoria) -> IO()
 imprimirCategoriaMasVariadaAux (ventas, categoria) = 
     let 
@@ -283,13 +376,37 @@ imprimirCategoriaMasVariada ventas =
         putStrLn "4- Categoría más variada"
         imprimirCategoriaMasVariadaAux (ventas, categoria)
 
+guardarResumenGeneral :: [Venta] -> IO()
+guardarResumenGeneral ventas = 
+    let
+        categorias = todasLasCategorias ventas
+        contenido1 = parsearCantVentasCategorias(categorias, ventas, "Reporte,Categoria,Cantidad\n")
+        contenido2 = parsearVentaAltaBaja ventas
+        contenido3 = parsearCategoriaMasVariada ventas
+        contenido = contenido1 ++ contenido2 ++ contenido3
+    in do
+        archivo <- preguntaGuardar  
+        withFile archivo WriteMode $ \handle -> do
+            hSetEncoding handle utf8
+            hPutStr handle contenido
+        putStrLn "Se ha guardado la estadística correctamente"
+
+     
+
 imprimirResumenGeneral :: [Venta] -> IO()
 imprimirResumenGeneral ventas = do 
     putStrLn "-----Resumen General-----"
     imprimirCantVentasCategorias ventas
     imprimirVentaAltaBaja ventas
     imprimirCategoriaMasVariada ventas
+    guardarResumenGeneral ventas
+    
 
+
+guardarEnArchivo :: (String, String) -> IO()
+guardarEnArchivo (archivo, texto) = do
+    writeFile archivo texto
+    putStrLn "Archivo creado o sobrescrito con éxito."
 
 menuEstadisticas :: Ventas -> IO ()
 menuEstadisticas (Ventas ventas) = do

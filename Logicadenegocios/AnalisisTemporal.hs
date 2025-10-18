@@ -234,42 +234,42 @@ formatearNumero num =
 -- Retorna un valor booleano `Bool`. Retorna True si la cadena cumple con el formato y las restricciones del año, y False en caso contrario.
 validarFormatoTrimestre :: String -> Bool
 validarFormatoTrimestre str = 
-  case str of
-    [a1, a2, a3, a4, '-', 'Q', t] ->
-      let anio = [a1, a2, a3, a4]
-      in todosDigitos anio && 
-         esAnioValido (leerNumero anio) && 
-         t `elem` ['1','2','3','4']
-    _ -> False
-  where
-    todosDigitos :: String -> Bool
-    -- Función para verifica recursivamente si todos los caracteres de una cadena son dígitos.
-    todosDigitos [] = True
-    todosDigitos (c:cs) = esDigito c && todosDigitos cs
-    
-    esDigito :: Char -> Bool
-    -- Función para verifica si un carácter está en el rango de '0' a '9'.
-    esDigito c = c >= '0' && c <= '9'
-    
-    esAnioValido :: Maybe Int -> Bool
-    -- Función para verifica si un año (Int, dentro de un Maybe) está en el rango [1980, 2025].
-    esAnioValido (Just anio) = anio >= 1980 && anio <= 2025
-    esAnioValido Nothing = False
-    
-    leerNumero :: String -> Maybe Int
-    -- Función para iniciar el proceso de conversión de String a Int.
-    leerNumero str = leerNumeroRecursivo str 0
-    
-    leerNumeroRecursivo :: String -> Int -> Maybe Int
-    -- Función para conviertir recursivamente una cadena de dígitos en un entero.
-    leerNumeroRecursivo [] acum = Just acum
-    leerNumeroRecursivo (c:cs) acum
-      | esDigito c = leerNumeroRecursivo cs (acum * 10 + charAInt c)
-      | otherwise = Nothing
-    
-    charAInt :: Char -> Int
-    -- Función para convertir un carácter dígito a su valor entero.
-    charAInt c = fromEnum c - fromEnum '0'
+  case str of
+    [a1, a2, a3, a4, '-', 'Q', t] ->
+      let anio = [a1, a2, a3, a4]
+      in todosDigitos anio && 
+        esAnioValido (leerNumero anio) && 
+        t `elem` ['1','2','3','4']
+    _ -> False
+  where
+    todosDigitos :: String -> Bool
+    -- Función para verifica recursivamente si todos los caracteres de una cadena son dígitos.
+    todosDigitos [] = True
+    todosDigitos (c:cs) = esDigito c && todosDigitos cs
+
+    esDigito :: Char -> Bool
+    -- Función para verifica si un carácter está en el rango de '0' a '9'.
+    esDigito c = c >= '0' && c <= '9'
+
+    esAnioValido :: Maybe Int -> Bool
+    -- Función para verifica si un año (Int, dentro de un Maybe) está en el rango [1980, 2025].
+    esAnioValido (Just anio) = anio >= 1980 && anio <= 2025
+    esAnioValido Nothing = False
+
+    leerNumero :: String -> Maybe Int
+    -- Función para iniciar el proceso de conversión de String a Int.
+    leerNumero str = leerNumeroRecursivo str 0
+
+    leerNumeroRecursivo :: String -> Int -> Maybe Int
+    -- Función para conviertir recursivamente una cadena de dígitos en un entero.
+    leerNumeroRecursivo [] acum = Just acum
+    leerNumeroRecursivo (c:cs) acum
+      | esDigito c = leerNumeroRecursivo cs (acum * 10 + charAInt c)
+      | otherwise = Nothing
+
+    charAInt :: Char -> Int
+    -- Función para convertir un carácter dígito a su valor entero.
+    charAInt c = fromEnum c - fromEnum '0'
 
 -- ===== MENÚ INTERACTIVO DE ANÁLISIS TEMPORAL =====
 menuAnalisisTemporal :: Ventas -> IO ()

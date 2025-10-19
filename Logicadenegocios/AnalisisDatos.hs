@@ -176,18 +176,21 @@ mostrarPromediosCategoria promedios = do
                  " | Cantidad de ventas: " ++ show cant
       imprimir ps
 
--- Devuelve el año como Int
+-- Devuelve el año de una fecha en formato "YYYY-MM" como Int
 obtenerAnioInt :: String -> Int
 obtenerAnioInt fecha =
     let partes = splitOn "-" fecha
     in read (head partes) :: Int
 
--- Devuelve el mes como Int
+-- Devuelve el mes de una fecha en formato "YYYY-MM" como Int
 obtenerMesInt :: String -> Int
 obtenerMesInt fecha =
     let partes = splitOn "-" fecha
     in read (partes !! 1) :: Int
 
+-- Filtra las ventas que se encuentran dentro del rango de fechas indicado
+-- Recibe la fecha de inicio, la fecha de fin y la lista de ventas
+-- Devuelve la lista de ventas cuyo mes y año estén dentro del rango
 obtenerVentasRangoFecha :: (String, String, [Venta]) -> [Venta]
 obtenerVentasRangoFecha (_, _, []) = []
 obtenerVentasRangoFecha (inicio, fin, x:xs) =
@@ -204,6 +207,8 @@ obtenerVentasRangoFecha (inicio, fin, x:xs) =
            then x : obtenerVentasRangoFecha (inicio, fin, xs)
            else obtenerVentasRangoFecha (inicio, fin, xs)
 
+-- Función auxiliar que imprime la información de las ventas en el rango de fechas
+-- Recibe la fecha de inicio, fecha de fin, la lista de ventas filtradas y un string auxiliar
 mostrarVentasRangoFechaAux :: (String, String, [Venta], String) -> IO()
 mostrarVentasRangoFechaAux (_, _, [], _) = return ()
 mostrarVentasRangoFechaAux (inicio, fin, x:xs, res) =
@@ -213,8 +218,10 @@ mostrarVentasRangoFechaAux (inicio, fin, x:xs, res) =
         putStrLn contenido
         putStrLn "-------------------------"
         mostrarVentasRangoFechaAux (inicio, fin, xs, "")
-        
 
+-- Imprime todas las ventas que se encuentran dentro del rango de fechas
+-- Recibe la fecha de inicio, fecha de fin y la lista de ventas
+-- Si no se encuentran ventas, informa al usuario
 mostrarVentasRangoFecha :: (String, String, [Venta]) -> IO()
 mostrarVentasRangoFecha (inicio, fin, ventas) =
     let
@@ -223,6 +230,8 @@ mostrarVentasRangoFecha (inicio, fin, ventas) =
         if null ventasRango then putStrLn "No se encontraron ventas en ese rango"
         else mostrarVentasRangoFechaAux (inicio, fin, ventasRango, "")
 
+-- Comprueba que la fecha ingresada tenga el formato "YYYY-MM" válido
+-- Verifica que tenga 7 caracteres, el guion en la posición correcta, y que año y mes sean números válidos
 comprobarFormato :: String -> Bool
 comprobarFormato fecha =
     let 
@@ -231,6 +240,7 @@ comprobarFormato fecha =
         length fecha == 7 && fecha !! 4 == '-' && all isDigit (take 4 fecha) && all isDigit (drop 5 fecha) 
         && mes >= 1 && mes <= 12            
 
+-- Compara dos fechas (inicio y fin) para verificar que la fecha final no sea anterior a la fecha inicial
 compararFechas :: (String, String) -> Bool
 compararFechas (inicio, fin) = 
     let
@@ -241,16 +251,18 @@ compararFechas (inicio, fin) =
     in
         anioFin > anioInicio || (anioFin == anioInicio && mesFin >= mesInicio)
 
-
+-- Menú interactivo que permite al usuario buscar ventas dentro de un rango de fechas
+-- Valida que existan ventas cargadas, que las fechas no estén vacías,
+-- que tengan el formato correcto y que la fecha final sea posterior o igual a la inicial
 menuBusquedaEspecifica :: Ventas -> IO ()
 menuBusquedaEspecifica ventas@(Ventas listaVentas)
     | null listaVentas = do
         putStrLn "\nNo hay ventas cargadas. Importe datos primero."
         return ()
     | otherwise = do
-        putStrLn "Ingrese la fecha de inicio (formato YYYY-MM):"
+        putStrLn "Ingrese la fecha de inicio (formato YYYY-MM, ej: 2024-03):"
         inicio <- getLine
-        putStrLn "Ingrese la fecha de fin (formato YYYY-MM):"
+        putStrLn "Ingrese la fecha de fin (formato YYYY-MM, ej: 2024-03):"
         fin <- getLine
 
         if null inicio || null fin
